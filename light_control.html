@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-lightbulb"></i> کنترل هوشمند چراغ مطالعه
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- کنترل‌های سریع -->
+                    <div class="row text-center mb-4">
+                        <div class="col-md-4 mb-3">
+                            <button id="light-on" class="btn btn-success btn-lg w-100 py-4">
+                                <i class="fas fa-power-off fa-2x mb-2"></i><br>
+                                روشن کردن چراغ
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <button id="light-off" class="btn btn-danger btn-lg w-100 py-4">
+                                <i class="fas fa-power-off fa-2x mb-2"></i><br>
+                                خاموش کردن چراغ
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="control-panel p-3">
+                                <h5>🔄 وضعیت فعلی</h5>
+                                <div id="current-status" class="mt-2">
+                                    <span class="badge bg-secondary fs-6">در حال بررسی...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تنظیمات پیشرفته -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-sliders-h"></i> تنظیم دقیق روشنایی
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <label for="brightness-slider" class="form-label">
+                                            <i class="fas fa-sun"></i> سطح روشنایی: 
+                                            <span id="brightness-value" class="fw-bold">50%</span>
+                                        </label>
+                                        <input type="range" id="brightness-slider" class="form-range" 
+                                               min="0" max="100" value="50" step="5">
+                                        <div class="d-flex justify-content-between text-muted small">
+                                            <span>کم</span>
+                                            <span>متوسط</span>
+                                            <span>زیاد</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button id="set-brightness" class="btn btn-primary px-4">
+                                            <i class="fas fa-check"></i> اعمال روشنایی
+                                        </button>
+                                        <button id="reset-brightness" class="btn btn-outline-secondary">
+                                            <i class="fas fa-undo"></i> بازنشانی
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-bolt"></i> حالت‌های از پیش تنظیم شده
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-info preset-btn" data-brightness="25">
+                                            <i class="fas fa-moon"></i> حالت مطالعه شب
+                                        </button>
+                                        <button class="btn btn-outline-warning preset-btn" data-brightness="50">
+                                            <i class="fas fa-book"></i> حالت مطالعه عادی
+                                        </button>
+                                        <button class="btn btn-outline-success preset-btn" data-brightness="75">
+                                            <i class="fas fa-sun"></i> حالت مطالعه روز
+                                        </button>
+                                        <button class="btn btn-outline-primary preset-btn" data-brightness="100">
+                                            <i class="fas fa-lightbulb"></i> حداکثر روشنایی
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تاریخچه و آمار -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-chart-bar"></i> آمار استفاده
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="stat-item">
+                                                <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+                                                <h4 id="usage-time">--:--</h4>
+                                                <small class="text-muted">مدت زمان استفاده امروز</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="stat-item">
+                                                <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+                                                <h4 id="energy-saved">0%</h4>
+                                                <small class="text-muted">صرفه‌جویی در انرژی</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="stat-item">
+                                                <i class="fas fa-calendar fa-2x text-success mb-2"></i>
+                                                <h4 id="days-used">0</h4>
+                                                <small class="text-muted">روزهای استفاده</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="stat-item">
+                                                <i class="fas fa-leaf fa-2x text-info mb-2"></i>
+                                                <h4 id="co2-saved">0g</h4>
+                                                <small class="text-muted>CO₂ صرفه‌جویی شده</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- برنامه‌ریزی خودکار -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-robot"></i> برنامه‌ریزی هوشمند
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="auto-schedule">
+                                                <label class="form-check-label" for="auto-schedule">
+                                                    فعال‌سازی برنامه‌ریزی خودکار
+                                                </label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">ساعت شروع مطالعه:</label>
+                                                <input type="time" id="study-start" class="form-control" value="18:00">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">مدت زمان مطالعه:</label>
+                                                <select id="study-duration" class="form-select">
+                                                    <option value="60">۱ ساعت</option>
+                                                    <option value="90" selected>۱.۵ ساعت</option>
+                                                    <option value="120">۲ ساعت</option>
+                                                    <option value="180">۳ ساعت</option>
+                                                </select>
+                                            </div>
+                                            <button id="save-schedule" class="btn btn-success w-100">
+                                                <i class="fas fa-save"></i> ذخیره برنامه
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentBrightness = 50;
+let lightStatus = 'unknown';
+
+document.addEventListener('DOMContentLoaded', function() {
+    const lightOnBtn = document.getElementById('light-on');
+    const lightOffBtn = document.getElementById('light-off');
+    const brightnessSlider = document.getElementById('brightness-slider');
+    const brightnessValue = document.getElementById('brightness-value');
+    const setBrightnessBtn = document.getElementById('set-brightness');
+    const resetBrightnessBtn = document.getElementById('reset-brightness');
+    const presetButtons = document.querySelectorAll('.preset-btn');
+    const currentStatus = document.getElementById('current-status');
+    const autoSchedule = document.getElementById('auto-schedule');
+    const saveScheduleBtn = document.getElementById('save-schedule');
+
+    // بارگذاری وضعیت اولیه
+    updateLightStatus();
+
+    // روشن کردن چراغ
+    lightOnBtn.addEventListener('click', async function() {
+        const result = await apiCall('/api/light/on', {
+            method: 'POST'
+        });
+        
+        if (result.status === 'success') {
+            showNotification('💡 ' + result.message, 'success');
+            lightStatus = 'on';
+            updateLightStatusDisplay();
+        } else {
+            showNotification('❌ ' + result.message, 'error');
+        }
+    });
+
+    // خاموش کردن چراغ
+    lightOffBtn.addEventListener('click', async function() {
+        const result = await apiCall('/api/light/off', {
+            method: 'POST'
+        });
+        
+        if (result.status === 'success') {
+            showNotification('🔌 ' + result.message, 'success');
+            lightStatus = 'off';
+            updateLightStatusDisplay();
+        } else {
+            showNotification('❌ ' + result.message, 'error');
+        }
+    });
+
+    // به روز رسانی مقدار روشنایی
+    brightnessSlider.addEventListener('input', function() {
+        currentBrightness = this.value;
+        brightnessValue.textContent = currentBrightness + '%';
+        updateBrightnessPreview();
+    });
+
+    // تنظیم روشنایی
+    setBrightnessBtn.addEventListener('click', async function() {
+        const result = await apiCall('/api/light/brightness', {
+            method: 'POST',
+            body: JSON.stringify({ brightness: parseInt(currentBrightness) })
+        });
+        
+        if (result.status === 'success') {
+            showNotification('🔆 ' + result.message, 'success');
+            lightStatus = 'on';
+            updateLightStatusDisplay();
+        } else {
+            showNotification('❌ ' + result.message, 'error');
+        }
+    });
+
+    // بازنشانی روشنایی
+    resetBrightnessBtn.addEventListener('click', function() {
+        brightnessSlider.value = 50;
+        currentBrightness = 50;
+        brightnessValue.textContent = '50%';
+        updateBrightnessPreview();
+        showNotification('🔄 روشنایی بازنشانی شد', 'info');
+    });
+
+    // حالت‌های از پیش تنظیم شده
+    presetButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const brightness = this.getAttribute('data-brightness');
+            brightnessSlider.value = brightness;
+            currentBrightness = brightness;
+            brightnessValue.textContent = brightness + '%';
+            updateBrightnessPreview();
+            showNotification(`🎛️ حالت ${this.textContent.trim()} انتخاب شد`, 'info');
+        });
+    });
+
+    // ذخیره برنامه‌ریزی
+    saveScheduleBtn.addEventListener('click', function() {
+        if (autoSchedule.checked) {
+            const startTime = document.getElementById('study-start').value;
+            const duration = document.getElementById('study-duration').value;
+            showNotification(`📅 برنامه مطالعه ذخیره شد: شروع ${startTime} به مدت ${duration} دقیقه`, 'success');
+        } else {
+            showNotification('⚠️ لطفاً ابتدا برنامه‌ریزی خودکار را فعال کنید', 'warning');
+        }
+    });
+
+    // پیش‌نمایش روشنایی
+    function updateBrightnessPreview() {
+        const intensity = currentBrightness / 100;
+        document.documentElement.style.setProperty('--light-intensity', intensity);
+    }
+
+    // به روز رسانی وضعیت چراغ
+    function updateLightStatus() {
+        // شبیه‌سازی وضعیت چراغ
+        setTimeout(() => {
+            lightStatus = 'off';
+            updateLightStatusDisplay();
+            updateStats();
+        }, 1000);
+    }
+
+    function updateLightStatusDisplay() {
+        if (lightStatus === 'on') {
+            currentStatus.innerHTML = '<span class="badge bg-success fs-6">🔆 چراغ روشن</span>';
+        } else if (lightStatus === 'off') {
+            currentStatus.innerHTML = '<span class="badge bg-secondary fs-6">⚫ چراغ خاموش</span>';
+        } else {
+            currentStatus.innerHTML = '<span class="badge bg-warning fs-6">🔸وضعیت نامعلوم</span>';
+        }
+    }
+
+    // به روز رسانی آمار
+    function updateStats() {
+        document.getElementById('usage-time').textContent = '۲:۳۰';
+        document.getElementById('energy-saved').textContent = '۴۵٪';
+        document.getElementById('days-used').textContent = '۱۲';
+        document.getElementById('co2-saved').textContent = '۱۵۰g';
+    }
+
+    // شبیه‌سازی تغییرات دینامیک
+    setInterval(() => {
+        if (lightStatus === 'on') {
+            // شبیه‌سازی تغییرات جزئی در روشنایی
+            const fluctuation = Math.random() * 10 - 5;
+            const newBrightness = Math.max(0, Math.min(100, currentBrightness + fluctuation));
+            if (Math.abs(newBrightness - currentBrightness) > 2) {
+                currentBrightness = newBrightness;
+                brightnessSlider.value = currentBrightness;
+                brightnessValue.textContent = Math.round(currentBrightness) + '%';
+            }
+        }
+    }, 5000);
+});
+</script>
+
+<style>
+:root {
+    --light-intensity: 0.5;
+}
+
+.stat-item {
+    padding: 15px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
+}
+
+.preset-btn {
+    transition: all 0.3s ease;
+}
+
+.preset-btn:hover {
+    transform: scale(1.05);
+}
+
+.control-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+}
+
+#brightness-slider {
+    height: 25px;
+}
+
+#brightness-slider::-webkit-slider-thumb {
+    background: #3498db;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+#brightness-slider::-moz-range-thumb {
+    background: #3498db;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.light-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+</style>
+{% endblock %}

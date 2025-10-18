@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-camera"></i> پردازشگر تصویر هوشمند
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- بخش عکس‌برداری و آپلود -->
+                        <div class="col-md-6">
+                            <div class="control-panel">
+                                <h5 class="text-center mb-4">📸 گرفتن عکس جدید</h5>
+                                
+                                <div class="d-grid gap-3">
+                                    <button id="capture-photo" class="btn btn-primary btn-lg py-3">
+                                        <i class="fas fa-camera"></i><br>
+                                        عکس‌برداری از دوربین گوشی
+                                    </button>
+                                    
+                                    <div class="text-center">
+                                        <span class="text-muted">یا</span>
+                                    </div>
+
+                                    <div class="file-upload-area">
+                                        <label for="photo-upload" class="btn btn-secondary btn-lg w-100 py-3 cursor-pointer">
+                                            <i class="fas fa-upload"></i><br>
+                                            آپلود فایل عکس از کامپیوتر
+                                        </label>
+                                        <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+                                    </div>
+                                </div>
+
+                                <!-- پیش نمایش عکس -->
+                                <div id="photo-preview" class="text-center mt-4">
+                                    <div class="placeholder-content">
+                                        <i class="fas fa-image fa-4x text-muted mb-3"></i>
+                                        <p class="text-muted">هنوز عکسی انتخاب نشده است</p>
+                                        <small>عکس کتاب، متن یا سوال خود را آپلود کنید</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- بخش پردازش و نتایج -->
+                        <div class="col-md-6">
+                            <div class="control-panel">
+                                <h5 class="text-center mb-4">🤖 پردازش هوش مصنوعی</h5>
+                                
+                                <div class="d-grid gap-3">
+                                    <button id="process-image" class="btn btn-success btn-lg py-3" disabled>
+                                        <i class="fas fa-brain"></i><br>
+                                        استخراج متن و تحلیل با هوش مصنوعی
+                                    </button>
+                                    
+                                    <div class="progress mb-3" style="display: none;" id="progress-bar">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                             role="progressbar" style="width: 100%">
+                                            <span class="progress-text">در حال پردازش تصویر...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- نتایج پردازش -->
+                                <div id="processing-results" class="mt-4">
+                                    <div class="placeholder-results">
+                                        <i class="fas fa-robot fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">نتایج پردازش در اینجا نمایش داده می‌شود</p>
+                                        <small>پس از آپلود عکس، دکمه پردازش را بزنید</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تب‌های نتایج -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <ul class="nav nav-tabs card-header-tabs" id="resultsTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="ocr-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#ocr-content" type="button" role="tab">
+                                                <i class="fas fa-text-height"></i> متن استخراج شده (OCR)
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="ai-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#ai-content" type="button" role="tab">
+                                                <i class="fas fa-robot"></i> تحلیل هوش مصنوعی
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="info-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#info-content" type="button" role="tab">
+                                                <i class="fas fa-info-circle"></i> اطلاعات تصویر
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content" id="resultsTabsContent">
+                                        <!-- تب متن استخراج شده -->
+                                        <div class="tab-pane fade show active" id="ocr-content" role="tabpanel">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6>متن تشخیص داده شده از تصویر:</h6>
+                                                <button id="copy-ocr" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-copy"></i> کپی متن
+                                                </button>
+                                            </div>
+                                            <div id="ocr-text" class="ocr-result">
+                                                <p class="text-muted text-center py-4">متن استخراج شده در اینجا نمایش داده می‌شود</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- تب تحلیل هوش مصنوعی -->
+                                        <div class="tab-pane fade" id="ai-content" role="tabpanel">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6>تحلیل و پاسخ هوش مصنوعی:</h6>
+                                                <button id="copy-ai" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-copy"></i> کپی تحلیل
+                                                </button>
+                                            </div>
+                                            <div id="ai-analysis" class="ai-result">
+                                                <p class="text-muted text-center py-4">تحلیل هوش مصنوعی در اینجا نمایش داده می‌شود</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- تب اطلاعات تصویر -->
+                                        <div class="tab-pane fade" id="info-content" role="tabpanel">
+                                            <div id="image-info" class="info-result">
+                                                <p class="text-muted text-center py-4">اطلاعات تصویر آپلود شده در اینجا نمایش داده می‌شود</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentImage = null;
+let currentImageFile = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const captureBtn = document.getElementById('capture-photo');
+    const processBtn = document.getElementById('process-image');
+    const photoUpload = document.getElementById('photo-upload');
+    const photoPreview = document.getElementById('photo-preview');
+    const progressBar = document.getElementById('progress-bar');
+    const processingResults = document.getElementById('processing-results');
+    const copyOcrBtn = document.getElementById('copy-ocr');
+    const copyAiBtn = document.getElementById('copy-ai');
+    const ocrText = document.getElementById('ocr-text');
+    const aiAnalysis = document.getElementById('ai-analysis');
+    const imageInfo = document.getElementById('image-info');
+
+    // عکس‌برداری از دوربین گوشی
+    captureBtn.addEventListener('click', async function() {
+        showNotification('📸 در حال راه‌اندازی دوربین گوشی...', 'info');
+        
+        try {
+            const result = await apiCall('/api/photo/capture', {
+                method: 'POST'
+            });
+
+            if (result.status === 'success') {
+                showNotification('✅ عکس با موفقیت گرفته شد', 'success');
+                
+                // نمایش عکس گرفته شده
+                photoPreview.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>عکس گرفته شد</strong>
+                    </div>
+                    <img src="/api/photo/latest" class="img-fluid rounded shadow" style="max-height: 300px;">
+                    <div class="mt-2">
+                        <small class="text-muted">سایز: ${result.file_size || 'نامشخص'}</small>
+                    </div>
+                `;
+                
+                currentImage = result.filename;
+                processBtn.disabled = false;
+                updateImageInfo(result);
+            } else {
+                showNotification('❌ ' + result.message, 'error');
+            }
+        } catch (error) {
+            showNotification('❌ خطا در ارتباط با دوربین', 'error');
+            console.error('Camera error:', error);
+        }
+    });
+
+    // آپلود فایل عکس
+    photoUpload.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                showNotification('❌ لطفاً یک فایل تصویری انتخاب کنید', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                showNotification('❌ حجم فایل باید کمتر از ۱۰ مگابایت باشد', 'error');
+                return;
+            }
+
+            showNotification('📤 در حال آپلود تصویر...', 'info');
+            currentImageFile = file;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                photoPreview.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>عکس انتخاب شد:</strong> ${file.name}
+                    </div>
+                    <img src="${e.target.result}" class="img-fluid rounded shadow" style="max-height: 300px;">
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            سایز: ${(file.size / 1024 / 1024).toFixed(2)} MB - 
+                            نوع: ${file.type}
+                        </small>
+                    </div>
+                `;
+                
+                processBtn.disabled = false;
+                updateImageInfoFromFile(file);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // پردازش تصویر
+    processBtn.addEventListener('click', async function() {
+        if (!currentImage && !currentImageFile) {
+            showNotification('❌ لطفاً ابتدا یک عکس انتخاب یا بگیرید', 'warning');
+            return;
+        }
+
+        progressBar.style.display = 'block';
+        processBtn.disabled = true;
+
+        try {
+            let result;
+            
+            if (currentImageFile) {
+                // آپلود فایل جدید
+                const formData = new FormData();
+                formData.append('photo', currentImageFile);
+
+                result = await fetch('/api/upload/photo', {
+                    method: 'POST',
+                    body: formData
+                }).then(r => r.json());
+
+                if (result.status !== 'success') {
+                    throw new Error(result.message);
+                }
+                
+                currentImage = result.filename;
+            }
+
+            // پردازش تصویر
+            showNotification('🤖 در حال پردازش تصویر با هوش مصنوعی...', 'info');
+            
+            const processResult = await apiCall('/api/photo/process', {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    image: currentImage,
+                    prompt: 'لطفاً متن داخل تصویر را بخوان و به زبان ساده تحلیل کن. اگر سوالی هست پاسخ بده.'
+                })
+            });
+
+            progressBar.style.display = 'none';
+            processBtn.disabled = false;
+
+            if (processResult.status === 'success') {
+                showNotification('✅ پردازش تصویر با موفقیت انجام شد', 'success');
+                displayResults(processResult.data);
+            } else {
+                throw new Error(processResult.message);
+            }
+
+        } catch (error) {
+            progressBar.style.display = 'none';
+            processBtn.disabled = false;
+            showNotification('❌ خطا در پردازش تصویر: ' + error.message, 'error');
+            console.error('Processing error:', error);
+        }
+    });
+
+    // کپی متن OCR
+    copyOcrBtn.addEventListener('click', function() {
+        const text = ocrText.textContent;
+        if (text && !text.includes('متن استخراج شده در اینجا نمایش داده می‌شود')) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('✅ متن OCR در کلیپ‌بورد کپی شد', 'success');
+            });
+        } else {
+            showNotification('⚠️ متنی برای کپی کردن وجود ندارد', 'warning');
+        }
+    });
+
+    // کپی تحلیل AI
+    copyAiBtn.addEventListener('click', function() {
+        const text = aiAnalysis.textContent;
+        if (text && !text.includes('تحلیل هوش مصنوعی در اینجا نمایش داده می‌شود')) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('✅ تحلیل AI در کلیپ‌بورد کپی شد', 'success');
+            });
+        } else {
+            showNotification('⚠️ تحلیلی برای کپی کردن وجود ندارد', 'warning');
+        }
+    });
+
+    // نمایش نتایج
+    function displayResults(data) {
+        // نمایش متن OCR
+        if (data.ocrText && data.ocrText !== 'متنی یافت نشد') {
+            ocrText.innerHTML = `
+                <div class="bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+                    <pre class="mb-0" style="white-space: pre-wrap; font-family: 'Vazirmatn', sans-serif;">${data.ocrText}</pre>
+                </div>
+            `;
+        } else {
+            ocrText.innerHTML = `
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p class="mb-0">متنی در تصویر تشخیص داده نشد</p>
+                </div>
+            `;
+        }
+
+        // نمایش تحلیل AI
+        if (data.aiAnalysis) {
+            const aiContent = typeof data.aiAnalysis === 'string' ? data.aiAnalysis : 
+                            data.aiAnalysis.choices?.[0]?.message?.content || 'تحلیل موجود نیست';
+            
+            aiAnalysis.innerHTML = `
+                <div class="bg-light p-3 rounded" style="max-height: 300px; overflow-y: auto;">
+                    <div style="white-space: pre-wrap; font-family: 'Vazirmatn', sans-serif; line-height: 1.6;">
+                        ${aiContent}
+                    </div>
+                </div>
+            `;
+        } else {
+            aiAnalysis.innerHTML = `
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i>
+                    <p class="mb-0">تحلیل هوش مصنوعی موجود نیست</p>
+                </div>
+            `;
+        }
+
+        // فعال کردن تب تحلیل
+        const aiTab = new bootstrap.Tab(document.getElementById('ai-tab'));
+        aiTab.show();
+    }
+
+    // به روز رسانی اطلاعات تصویر
+    function updateImageInfo(info) {
+        imageInfo.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>نام فایل:</strong><br>
+                    <span class="text-muted">${info.filename || 'نامشخص'}</span>
+                </div>
+                <div class="col-md-6">
+                    <strong>سایز فایل:</strong><br>
+                    <span class="text-muted">${info.file_size || 'نامشخص'}</span>
+                </div>
+                <div class="col-md-6 mt-2">
+                    <strong>زمان گرفته شده:</strong><br>
+                    <span class="text-muted">${new Date().toLocaleString('fa-IR')}</span>
+                </div>
+                <div class="col-md-6 mt-2">
+                    <strong>وضعیت:</strong><br>
+                    <span class="badge bg-success">آماده پردازش</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function updateImageInfoFromFile(file) {
+        imageInfo.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>نام فایل:</strong><br>
+                    <span class="text-muted">${file.name}</span>
+                </div>
+                <div class="col-md-6">
+                    <strong>سایز فایل:</strong><br>
+                    <span class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                </div>
+                <div class="col-md-6 mt-2">
+                    <strong>نوع فایل:</strong><br>
+                    <span class="text-muted">${file.type}</span>
+                </div>
+                <div class="col-md-6 mt-2">
+                    <strong>وضعیت:</strong><br>
+                    <span class="badge bg-success">آماده پردازش</span>
+                </div>
+            </div>
+        `;
+    }
+});
+</script>
+
+<style>
+.file-upload-area {
+    position: relative;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.placeholder-content, .placeholder-results {
+    padding: 40px 20px;
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+}
+
+.ocr-result, .ai-result, .info-result {
+    min-height: 150px;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: #3498db;
+    font-weight: bold;
+    border-bottom: 3px solid #3498db;
+}
+
+#photo-preview img {
+    max-width: 100%;
+    border: 3px solid #e9ecef;
+    transition: border-color 0.3s ease;
+}
+
+#photo-preview img:hover {
+    border-color: #3498db;
+}
+</style>
+{% endblock %}

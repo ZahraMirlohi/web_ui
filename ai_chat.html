@@ -1,0 +1,642 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-robot"></i> دستیار هوش مصنوعی مطالعه
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- پنل چت -->
+                        <div class="col-md-8">
+                            <div class="card chat-container">
+                                <div class="card-header bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-comments me-2"></i>
+                                            <span class="fw-bold">گفتگو با دستیار هوشمند</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-success me-2" id="connection-status">
+                                                <i class="fas fa-circle"></i> متصل
+                                            </span>
+                                            <button class="btn btn-sm btn-outline-secondary" id="clear-chat">
+                                                <i class="fas fa-trash"></i> پاک کردن
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chat-messages" class="chat-messages">
+                                        <div class="message bot-message">
+                                            <div class="message-avatar">
+                                                <i class="fas fa-robot"></i>
+                                            </div>
+                                            <div class="message-content">
+                                                <div class="message-header">
+                                                    <strong>دستیار هوشمند</strong>
+                                                    <small class="text-muted">هم اکنون</small>
+                                                </div>
+                                                <div class="message-text">
+                                                    سلام! 👋 من دستیار هوش مصنوعی شما هستم. 
+                                                    می‌توانم در زمینه‌های زیر به شما کمک کنم:
+                                                    <br>
+                                                    • 📚 پاسخ به سوالات درسی
+                                                    • 🔍 حل مسائل ریاضی و علمی  
+                                                    • 📖 توضیح مفاهیم پیچیده
+                                                    • 🎯 برنامه‌ریزی مطالعه
+                                                    • ✍️ ویرایش متون
+                                                    <br>
+                                                    چه سوالی دارید؟
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- نوار تایپ -->
+                                    <div class="chat-input-container mt-3">
+                                        <div class="input-group">
+                                            <textarea id="chat-input" class="form-control" 
+                                                      placeholder="سوال یا درخواست خود را اینجا تایپ کنید..." 
+                                                      rows="2" style="resize: none;"></textarea>
+                                            <button id="send-message" class="btn btn-primary">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-lightbulb"></i>
+                                                Enter برای ارسال، Shift+Enter برای خط جدید
+                                            </small>
+                                            <div>
+                                                <button class="btn btn-sm btn-outline-secondary" id="voice-input">
+                                                    <i class="fas fa-microphone"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary ms-1" id="attach-file">
+                                                    <i class="fas fa-paperclip"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- پنل کناری -->
+                        <div class="col-md-4">
+                            <!-- وضعیت سیستم -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-heartbeat"></i> وضعیت سیستم
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="system-status">
+                                        <div class="status-item d-flex justify-content-between align-items-center mb-2">
+                                            <span>API هوش مصنوعی:</span>
+                                            <span class="badge bg-success">فعال</span>
+                                        </div>
+                                        <div class="status-item d-flex justify-content-between align-items-center mb-2">
+                                            <span>سرعت پاسخ:</span>
+                                            <span class="badge bg-info">سریع</span>
+                                        </div>
+                                        <div class="status-item d-flex justify-content-between align-items-center mb-2">
+                                            <span>مدل فعال:</span>
+                                            <span class="badge bg-secondary">Gemini 2.0</span>
+                                        </div>
+                                        <div class="status-item d-flex justify-content-between align-items-center">
+                                            <span>تعداد گفتگو:</span>
+                                            <span class="badge bg-primary" id="message-count">1</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- دستورات سریع -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-bolt"></i> دستورات سریع
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary btn-sm quick-prompt" data-prompt="این متن را ساده‌تر توضیح بده:">
+                                            <i class="fas fa-language"></i> ساده‌سازی متن
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm quick-prompt" data-prompt="این مسئله ریاضی را حل کن:">
+                                            <i class="fas fa-calculator"></i> حل مسئله ریاضی
+                                        </button>
+                                        <button class="btn btn-outline-info btn-sm quick-prompt" data-prompt="برنامه مطالعه برای این موضوع طراحی کن:">
+                                            <i class="fas fa-calendar"></i> برنامه‌ریزی مطالعه
+                                        </button>
+                                        <button class="btn btn-outline-warning btn-sm quick-prompt" data-prompt="این مطلب را خلاصه کن:">
+                                            <i class="fas fa-file-contract"></i> خلاصه‌سازی
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- تاریخچه گفتگو -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-history"></i> تاریخچه گفتگو
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chat-history" class="chat-history">
+                                        <div class="history-item active">
+                                            <i class="fas fa-comment me-2"></i>
+                                            گفتگوی فعلی
+                                        </div>
+                                        <div class="history-item">
+                                            <i class="fas fa-comment me-2"></i>
+                                            ریاضی پیشرفته
+                                        </div>
+                                        <div class="history-item">
+                                            <i class="fas fa-comment me-2"></i>
+                                            فیزیک کوانتوم
+                                        </div>
+                                        <div class="history-item">
+                                            <i class="fas fa-comment me-2"></i>
+                                            برنامه‌ریزی هفتگی
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-outline-secondary btn-sm w-100 mt-2">
+                                        <i class="fas fa-plus"></i> گفتگوی جدید
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ویژگی‌های پیشرفته -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-magic"></i> ویژگی‌های پیشرفته
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="feature-item">
+                                                <i class="fas fa-book fa-2x text-primary mb-2"></i>
+                                                <h6>پشتیبانی از متون درسی</h6>
+                                                <small class="text-muted">کمک در فهم متون پیچیده</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="feature-item">
+                                                <i class="fas fa-calculator fa-2x text-success mb-2"></i>
+                                                <h6>حل مسائل ریاضی</h6>
+                                                <small class="text-muted">شامل توضیح قدم به قدم</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="feature-item">
+                                                <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
+                                                <h6>تحلیل و بررسی</h6>
+                                                <small class="text-muted">تجزیه و تحلیل عمیق</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="feature-item">
+                                                <i class="fas fa-brain fa-2x text-info mb-2"></i>
+                                                <h6>یادگیری تطبیقی</h6>
+                                                <small class="text-muted">سازگار با سطح شما</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let messageCount = 1;
+let isProcessing = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-message');
+    const chatMessages = document.getElementById('chat-messages');
+    const clearChatBtn = document.getElementById('clear-chat');
+    const quickPrompts = document.querySelectorAll('.quick-prompt');
+    const messageCountElement = document.getElementById('message-count');
+
+    // ارسال پیام با Enter
+    chatInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // ارسال پیام با کلیک
+    sendButton.addEventListener('click', sendMessage);
+
+    // پاک کردن چت
+    clearChatBtn.addEventListener('click', function() {
+        chatMessages.innerHTML = `
+            <div class="message bot-message">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <strong>دستیار هوشمند</strong>
+                        <small class="text-muted">هم اکنون</small>
+                    </div>
+                    <div class="message-text">
+                        گفتگو پاک شد. چگونه می‌توانم کمک کنم؟
+                    </div>
+                </div>
+            </div>
+        `;
+        messageCount = 1;
+        updateMessageCount();
+        showNotification('🗑️ تاریخچه گفتگو پاک شد', 'info');
+    });
+
+    // دستورات سریع
+    quickPrompts.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const prompt = this.getAttribute('data-prompt');
+            chatInput.value = prompt + ' ';
+            chatInput.focus();
+            showNotification('⚡ دستور سریع اضافه شد', 'info');
+        });
+    });
+
+    // تابع ارسال پیام
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        
+        if (!message) {
+            showNotification('❌ لطفاً پیامی وارد کنید', 'warning');
+            return;
+        }
+
+        if (isProcessing) {
+            showNotification('⏳ لطفاً منتظر بمانید...', 'info');
+            return;
+        }
+
+        // اضافه کردن پیام کاربر
+        addMessageToChat('user', message);
+        chatInput.value = '';
+        isProcessing = true;
+        messageCount++;
+        updateMessageCount();
+
+        // نمایش وضعیت در حال پردازش
+        const typingIndicator = addTypingIndicator();
+
+        try {
+            const result = await apiCall('/api/ai/chat', {
+                method: 'POST',
+                body: JSON.stringify({ message: message })
+            });
+
+            // حذف نشانگر تایپ
+            typingIndicator.remove();
+
+            if (result.status === 'success') {
+                addMessageToChat('bot', result.response);
+            } else {
+                addMessageToChat('bot', 
+                    'متأسفانه در ارتباط با سرور مشکلی پیش آمده. لطفاً دوباره تلاش کنید.\n\n' +
+                    'خطا: ' + result.message
+                );
+            }
+        } catch (error) {
+            typingIndicator.remove();
+            addMessageToChat('bot', 
+                'خطا در برقراری ارتباط. لطفاً اتصال اینترنت خود را بررسی کنید.'
+            );
+            console.error('Chat error:', error);
+        } finally {
+            isProcessing = false;
+        }
+    }
+
+    // اضافه کردن پیام به چت
+    function addMessageToChat(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const timestamp = new Date().toLocaleTimeString('fa-IR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-${sender === 'user' ? 'user' : 'robot'}"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <strong>${sender === 'user' ? 'شما' : 'دستیار هوشمند'}</strong>
+                    <small class="text-muted">${timestamp}</small>
+                </div>
+                <div class="message-text">${formatMessage(text)}</div>
+            </div>
+        `;
+
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    // افزودن نشانگر تایپ
+    function addTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message typing-indicator';
+        typingDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <strong>دستیار هوشمند</strong>
+                    <small class="text-muted">در حال تایپ...</small>
+                </div>
+                <div class="message-text">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        chatMessages.appendChild(typingDiv);
+        scrollToBottom();
+        return typingDiv;
+    }
+
+    // فرمت‌بندی پیام
+    function formatMessage(text) {
+        // تبدیل خطوط جدید به <br>
+        text = text.replace(/\n/g, '<br>');
+        
+        // هایلایت کد و فرمول‌ها
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        // هایلایت کلمات کلیدی
+        const keywords = ['توجه', 'مهم', 'نکته', 'تذکر', 'هشدار'];
+        keywords.forEach(keyword => {
+            const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+            text = text.replace(regex, `<strong class="text-warning">${keyword}</strong>`);
+        });
+
+        return text;
+    }
+
+    // اسکرول به پایین
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // به روز رسانی تعداد پیام‌ها
+    function updateMessageCount() {
+        messageCountElement.textContent = messageCount;
+    }
+
+    // شبیه‌سازی پاسخ‌های هوش مصنوعی برای نمایش
+    const sampleResponses = [
+        "این یک پاسخ نمونه از هوش مصنوعی است. در نسخه واقعی، پاسخ‌ها از API OpenRouter دریافت می‌شوند.",
+        "من می‌توانم در حل مسائل ریاضی، توضیح مفاهیم علمی و برنامه‌ریزی مطالعه به شما کمک کنم.",
+        "لطفاً سوال خود را به طور دقیق بیان کنید تا بتوانم بهترین پاسخ را ارائه دهم."
+    ];
+
+    // پاسخ خودکار برای نمایش دمو
+    setTimeout(() => {
+        if (messageCount === 1) {
+            addMessageToChat('bot', 
+                "برای شروع گفتگو، سوال یا درخواست خود را در کادر زیر تایپ کنید. " +
+                "من می‌توانم در زمینه‌های مختلف درسی و مطالعاتی به شما کمک کنم. " +
+                "همچنین می‌توانید از دکمه‌های دستور سریع استفاده کنید."
+            );
+            messageCount++;
+            updateMessageCount();
+        }
+    }, 3000);
+});
+</script>
+
+<style>
+.chat-container {
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.user-message {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+    flex-shrink: 0;
+}
+
+.user-message .message-avatar {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.bot-message .message-avatar {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.message-content {
+    flex: 1;
+    max-width: 70%;
+}
+
+.user-message .message-content {
+    text-align: left;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.message-text {
+    background: white;
+    padding: 12px 15px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    line-height: 1.6;
+}
+
+.user-message .message-text {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 15px 15px 0 15px;
+}
+
+.bot-message .message-text {
+    background: white;
+    border-radius: 15px 15px 15px 0;
+    border: 1px solid #e9ecef;
+}
+
+.chat-input-container {
+    border-top: 1px solid #e9ecef;
+    padding-top: 15px;
+}
+
+.typing-indicator .message-text {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: 5px 15px;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6c757d;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-history {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-right: 3px solid transparent;
+}
+
+.history-item:hover {
+    background-color: #f8f9fa;
+}
+
+.history-item.active {
+    background-color: #e3f2fd;
+    border-right-color: #2196f3;
+    font-weight: bold;
+}
+
+.feature-item {
+    padding: 15px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.quick-prompt {
+    transition: all 0.3s ease;
+    text-align: right;
+}
+
+.quick-prompt:hover {
+    transform: translateX(-5px);
+}
+
+code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    color: #e83e8c;
+}
+
+.user-message code {
+    background: rgba(255,255,255,0.2);
+    color: inherit;
+}
+
+/* اسکرول بار سفارشی */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+</style>
+{% endblock %}

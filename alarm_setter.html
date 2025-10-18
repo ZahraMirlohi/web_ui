@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-clock"></i> سیستم هشدار و مدیریت زمان مطالعه
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- زمان فعلی و وضعیت -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h5><i class="fas fa-globe"></i> زمان فعلی ایران</h5>
+                                    <h2 id="current-iran-time" class="display-4">--:--:--</h2>
+                                    <p id="current-iran-date" class="mb-0">در حال بارگذاری...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card" id="alarm-status-card">
+                                <div class="card-body text-center">
+                                    <h5><i class="fas fa-bell"></i> وضعیت آلارم</h5>
+                                    <div id="alarm-status" class="my-3">
+                                        <i class="fas fa-bell-slash fa-3x text-muted"></i>
+                                        <p class="mt-2">هیچ آلارمی فعال نیست</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تنظیم آلارم جدید -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-cogs"></i> تنظیم آلارم جدید
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="time-control">
+                                                <label class="form-label fw-bold">⏰ ساعت:</label>
+                                                <div class="input-group input-group-lg">
+                                                    <button class="btn btn-outline-primary" type="button" id="hour-decrease">-</button>
+                                                    <input type="text" class="form-control text-center" id="hour-input" value="12" maxlength="2">
+                                                    <button class="btn btn-outline-primary" type="button" id="hour-increase">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="time-control">
+                                                <label class="form-label fw-bold">📅 دقیقه:</label>
+                                                <div class="input-group input-group-lg">
+                                                    <button class="btn btn-outline-primary" type="button" id="minute-decrease">-</button>
+                                                    <input type="text" class="form-control text-center" id="minute-input" value="00" maxlength="2">
+                                                    <button class="btn btn-outline-primary" type="button" id="minute-increase">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                                                <button id="set-alarm-btn" class="btn btn-success btn-lg px-5">
+                                                    <i class="fas fa-bell"></i> تنظیم آلارم
+                                                </button>
+                                                <button id="stop-alarm-btn" class="btn btn-danger btn-lg px-5" disabled>
+                                                    <i class="fas fa-stop"></i> توقف آلارم
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-bolt"></i> آلارم‌های سریع
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-warning quick-alarm-btn" data-minutes="15">
+                                            <i class="fas fa-clock"></i> ۱۵ دقیقه دیگر
+                                        </button>
+                                        <button class="btn btn-outline-info quick-alarm-btn" data-minutes="30">
+                                            <i class="fas fa-clock"></i> ۳۰ دقیقه دیگر
+                                        </button>
+                                        <button class="btn btn-outline-primary quick-alarm-btn" data-minutes="60">
+                                            <i class="fas fa-clock"></i> ۱ ساعت دیگر
+                                        </button>
+                                        <button class="btn btn-outline-success quick-alarm-btn" data-minutes="120">
+                                            <i class="fas fa-clock"></i> ۲ ساعت دیگر
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- آلارم‌های برنامه‌ریزی شده -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-list"></i> آلارم‌های فعال
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="active-alarms-list">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                                            <p>هیچ آلارم فعالی وجود ندارد</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تنظیمات پیشرفته -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-sliders-h"></i> تنظیمات پیشرفته
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">🔊 حجم صدا:</label>
+                                                <input type="range" class="form-range" id="volume-slider" min="0" max="100" value="80">
+                                                <div class="d-flex justify-content-between">
+                                                    <small>کم</small>
+                                                    <small id="volume-value">80%</small>
+                                                    <small>زیاد</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">🔔 نوع هشدار:</label>
+                                                <select class="form-select" id="alarm-type">
+                                                    <option value="sound">صدای استاندارد</option>
+                                                    <option value="vibrate">لرزش + صدا</option>
+                                                    <option value="light">نور + صدا</option>
+                                                    <option value="full">همه موارد</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">⏱️ مدت هشدار:</label>
+                                                <select class="form-select" id="alarm-duration">
+                                                    <option value="1">۱ دقیقه</option>
+                                                    <option value="2" selected>۲ دقیقه</option>
+                                                    <option value="5">۵ دقیقه</option>
+                                                    <option value="10">۱۰ دقیقه</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="auto-snooze">
+                                        <label class="form-check-label" for="auto-snooze">
+                                            چرت خودکار (۵ دقیقه)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let activeAlarm = null;
+let alarmInterval = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const hourInput = document.getElementById('hour-input');
+    const minuteInput = document.getElementById('minute-input');
+    const hourIncrease = document.getElementById('hour-increase');
+    const hourDecrease = document.getElementById('hour-decrease');
+    const minuteIncrease = document.getElementById('minute-increase');
+    const minuteDecrease = document.getElementById('minute-decrease');
+    const setAlarmBtn = document.getElementById('set-alarm-btn');
+    const stopAlarmBtn = document.getElementById('stop-alarm-btn');
+    const quickAlarmBtns = document.querySelectorAll('.quick-alarm-btn');
+    const volumeSlider = document.getElementById('volume-slider');
+    const volumeValue = document.getElementById('volume-value');
+    const activeAlarmsList = document.getElementById('active-alarms-list');
+    const alarmStatus = document.getElementById('alarm-status');
+    const alarmStatusCard = document.getElementById('alarm-status-card');
+
+    // به روز رسانی زمان ایران
+    function updateIranTime() {
+        const now = new Date();
+        const iranTime = new Date(now.getTime() + (3.5 * 60 * 60 * 1000)); // UTC+3:30
+        
+        const timeString = iranTime.toLocaleTimeString('fa-IR');
+        const dateString = iranTime.toLocaleDateString('fa-IR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        document.getElementById('current-iran-time').textContent = timeString;
+        document.getElementById('current-iran-date').textContent = dateString;
+    }
+
+    setInterval(updateIranTime, 1000);
+    updateIranTime();
+
+    // کنترل ساعت
+    hourIncrease.addEventListener('click', () => adjustTime('hour', 1));
+    hourDecrease.addEventListener('click', () => adjustTime('hour', -1));
+    minuteIncrease.addEventListener('click', () => adjustTime('minute', 1));
+    minuteDecrease.addEventListener('click', () => adjustTime('minute', -1));
+
+    hourInput.addEventListener('change', validateTimeInput);
+    minuteInput.addEventListener('change', validateTimeInput);
+
+    // تنظیم آلارم
+    setAlarmBtn.addEventListener('click', async function() {
+        const hour = parseInt(hourInput.value);
+        const minute = parseInt(minuteInput.value);
+        
+        if (isValidTime(hour, minute)) {
+            const result = await apiCall('/api/alarm/set', {
+                method: 'POST',
+                body: JSON.stringify({ hour: hour, minute: minute })
+            });
+
+            if (result.status === 'success') {
+                showNotification('✅ ' + result.message, 'success');
+                activeAlarm = { hour, minute };
+                updateAlarmStatus(true);
+                stopAlarmBtn.disabled = false;
+                addToActiveAlarms(hour, minute);
+            } else {
+                showNotification('❌ ' + result.message, 'error');
+            }
+        } else {
+            showNotification('❌ زمان وارد شده معتبر نیست', 'error');
+        }
+    });
+
+    // توقف آلارم
+    stopAlarmBtn.addEventListener('click', async function() {
+        const result = await apiCall('/api/alarm/stop', {
+            method: 'POST'
+        });
+
+        if (result.status === 'success') {
+            showNotification('⏹️ ' + result.message, 'success');
+            activeAlarm = null;
+            updateAlarmStatus(false);
+            stopAlarmBtn.disabled = true;
+            clearActiveAlarms();
+        }
+    });
+
+    // آلارم‌های سریع
+    quickAlarmBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const minutes = parseInt(this.getAttribute('data-minutes'));
+            setQuickAlarm(minutes);
+        });
+    });
+
+    // کنترل حجم صدا
+    volumeSlider.addEventListener('input', function() {
+        volumeValue.textContent = this.value + '%';
+    });
+
+    // توابع کمکی
+    function adjustTime(type, change) {
+        let value = type === 'hour' ? parseInt(hourInput.value) : parseInt(minuteInput.value);
+        let max = type === 'hour' ? 23 : 59;
+        
+        value += change;
+        if (value < 0) value = max;
+        if (value > max) value = 0;
+        
+        const formattedValue = value.toString().padStart(2, '0');
+        if (type === 'hour') {
+            hourInput.value = formattedValue;
+        } else {
+            minuteInput.value = formattedValue;
+        }
+    }
+
+    function validateTimeInput(event) {
+        let value = parseInt(event.target.value);
+        const max = event.target.id === 'hour-input' ? 23 : 59;
+        
+        if (isNaN(value) || value < 0) value = 0;
+        if (value > max) value = max;
+        
+        event.target.value = value.toString().padStart(2, '0');
+    }
+
+    function isValidTime(hour, minute) {
+        return !isNaN(hour) && !isNaN(minute) && 
+               hour >= 0 && hour <= 23 && 
+               minute >= 0 && minute <= 59;
+    }
+
+    function setQuickAlarm(minutes) {
+        const now = new Date();
+        const alarmTime = new Date(now.getTime() + (minutes * 60 * 1000));
+        const iranTime = new Date(alarmTime.getTime() + (3.5 * 60 * 60 * 1000));
+        
+        const hour = iranTime.getHours();
+        const minute = iranTime.getMinutes();
+        
+        hourInput.value = hour.toString().padStart(2, '0');
+        minuteInput.value = minute.toString().padStart(2, '0');
+        
+        showNotification(`⏰ آلارم برای ${hour}:${minute.toString().padStart(2, '0')} تنظیم شد`, 'info');
+    }
+
+    function updateAlarmStatus(isActive) {
+        if (isActive && activeAlarm) {
+            alarmStatus.innerHTML = `
+                <i class="fas fa-bell fa-3x text-warning"></i>
+                <p class="mt-2 fw-bold">آلارم فعال</p>
+                <p class="mb-0">${activeAlarm.hour.toString().padStart(2, '0')}:${activeAlarm.minute.toString().padStart(2, '0')}</p>
+            `;
+            alarmStatusCard.classList.remove('bg-light');
+            alarmStatusCard.classList.add('bg-warning', 'text-white');
+        } else {
+            alarmStatus.innerHTML = `
+                <i class="fas fa-bell-slash fa-3x text-muted"></i>
+                <p class="mt-2">هیچ آلارمی فعال نیست</p>
+            `;
+            alarmStatusCard.classList.remove('bg-warning', 'text-white');
+            alarmStatusCard.classList.add('bg-light');
+        }
+    }
+
+    function addToActiveAlarms(hour, minute) {
+        const alarmItem = document.createElement('div');
+        alarmItem.className = 'alert alert-info d-flex justify-content-between align-items-center';
+        alarmItem.innerHTML = `
+            <div>
+                <i class="fas fa-bell me-2"></i>
+                <strong>${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}</strong>
+                <small class="ms-2">(ایران)</small>
+            </div>
+            <div>
+                <span class="badge bg-success">فعال</span>
+                <button class="btn btn-sm btn-outline-danger ms-2 remove-alarm-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        activeAlarmsList.innerHTML = '';
+        activeAlarmsList.appendChild(alarmItem);
+
+        // حذف آلارم
+        alarmItem.querySelector('.remove-alarm-btn').addEventListener('click', function() {
+            activeAlarmsList.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                    <p>هیچ آلارم فعالی وجود ندارد</p>
+                </div>
+            `;
+            updateAlarmStatus(false);
+            stopAlarmBtn.disabled = true;
+            activeAlarm = null;
+        });
+    }
+
+    function clearActiveAlarms() {
+        activeAlarmsList.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                <p>هیچ آلارم فعالی وجود ندارد</p>
+            </div>
+        `;
+    }
+
+    // شبیه‌سازی بررسی آلارم
+    setInterval(() => {
+        if (activeAlarm) {
+            const now = new Date();
+            const iranTime = new Date(now.getTime() + (3.5 * 60 * 60 * 1000));
+            
+            if (iranTime.getHours() === activeAlarm.hour && 
+                iranTime.getMinutes() === activeAlarm.minute) {
+                showNotification('🔔 زمان مطالعه به پایان رسید!', 'warning');
+                // اینجا می‌توانید آلارم را به صورت خودکار غیرفعال کنید
+                activeAlarm = null;
+                updateAlarmStatus(false);
+                stopAlarmBtn.disabled = true;
+                clearActiveAlarms();
+            }
+        }
+    }, 30000); // هر 30 ثانیه چک کند
+});
+</script>
+
+<style>
+.time-control .input-group {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.time-control .btn {
+    border-radius: 0;
+}
+
+.time-control .form-control {
+    border-left: none;
+    border-right: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.quick-alarm-btn {
+    transition: all 0.3s ease;
+}
+
+.quick-alarm-btn:hover {
+    transform: translateX(-5px);
+}
+
+#alarm-status-card {
+    transition: all 0.5s ease;
+}
+
+.remove-alarm-btn {
+    transition: all 0.3s ease;
+}
+
+.remove-alarm-btn:hover {
+    transform: scale(1.1);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.alarm-active {
+    animation: pulse 2s infinite;
+}
+</style>
+{% endblock %}
